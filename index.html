@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دعوة افتتاح Vibe الكبير</title>
+    
+    <!-- Chosen Palette: Dark Vibe (Dark gray/black background, Amber/Yellow accents, White text) -->
+    <!-- Application Structure Plan: A single-page, vertical-scroll layout to present the invitation interactively. The flow starts with a countdown timer to build hype, moves to an interactive overview of Vibe's offerings (Gaming, Cinema, etc.), features a "Spin the Wheel" game to create engagement and preview the fun, and concludes with clear event details. This structure turns a static invite into an exciting digital experience, encouraging exploration and attendance. -->
+    <!-- Visualization & Content Choices: - Hero: Goal: Hype -> Countdown Timer -> JS `setInterval`. - Offerings: Goal: Inform -> Interactive Cards -> HTML/CSS/JS hover/click effects. - Main Interactive Feature: Goal: Engage -> Wheel of Fortune -> Canvas API + JS. This provides a memorable, game-like interaction that aligns with the "Vibe" brand. It's more engaging than a static list of prizes. - Event Details: Goal: Inform -> Static Text + Map Placeholder -> HTML/CSS. A static map image is used to provide visual context without needing external APIs. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #121212;
+            color: #e5e7eb;
+            background-image: radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(217, 119, 6, 0.1), transparent 50%);
+        }
+        .font-header {
+            font-family: 'Changa', sans-serif;
+        }
+        .neon-text {
+            color: #fff;
+            text-shadow:
+                0 0 7px #fff,
+                0 0 10px #fff,
+                0 0 21px #fff,
+                0 0 42px #f59e0b,
+                0 0 82px #f59e0b,
+                0 0 92px #f59e0b;
+        }
+        .section-title {
+            font-family: 'Changa', sans-serif;
+            color: #fde047;
+        }
+        .card {
+            background-color: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+        }
+        .countdown-box {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 350px;
+        }
+        .roulette-pointer {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #f59e0b;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+        }
+        #spin-button {
+            font-family: 'Changa', sans-serif;
+            background-color: #f59e0b;
+            color: #121212;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        #spin-button:disabled {
+            background-color: #a1a1aa;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="bg-zinc-900">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Hero Section -->
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="font-header text-6xl sm:text-7xl md:text-8xl font-bold uppercase neon-text">Vibe</h1>
+            <p class="font-header text-xl sm:text-2xl mt-2 text-amber-300">Your Space. Your Rules. Your Vibe</p>
+            <p class="text-md mt-6 max-w-lg mx-auto text-zinc-300">
+                نتشرف بدعوتكم لحفل افتتاح مكانكم الجديد. استعدوا لتجربة فريدة!
+            </p>
+        </header>
+
+        <!-- Countdown & Details Section -->
+        <section id="event-info" class="mb-12 md:mb-16">
+            <h2 class="section-title text-3xl md:text-4xl text-center mb-6">الافتتاح الكبير</h2>
+            <!-- Countdown -->
+            <div id="countdown" class="grid grid-cols-4 gap-3 max-w-md mx-auto text-center mb-8">
+                <div class="countdown-box p-3 rounded-lg">
+                    <p id="days" class="font-header text-4xl font-bold text-amber-400">00</p>
+                    <p class="text-xs text-zinc-300">أيام</p>
+                </div>
+                <div class="countdown-box p-3 rounded-lg">
+                    <p id="hours" class="font-header text-4xl font-bold text-amber-400">00</p>
+                    <p class="text-xs text-zinc-300">ساعات</p>
+                </div>
+                <div class="countdown-box p-3 rounded-lg">
+                    <p id="minutes" class="font-header text-4xl font-bold text-amber-400">00</p>
+                    <p class="text-xs text-zinc-300">دقائق</p>
+                </div>
+                <div class="countdown-box p-3 rounded-lg">
+                    <p id="seconds" class="font-header text-4xl font-bold text-amber-400">00</p>
+                    <p class="text-xs text-zinc-300">ثواني</p>
+                </div>
+            </div>
+            <!-- Details -->
+            <div class="max-w-md mx-auto space-y-3 text-center text-lg bg-zinc-800/50 p-4 rounded-lg border border-amber-500/20">
+                <p><strong>🗓️ الموعد:</strong> السبت، 20 يوليو 2025</p>
+                <p><strong>⏰ الوقت:</strong> الساعة 8:00 مساءً</p>
+                <p><strong>📍 المكان:</strong> القاهرة الجديدة - التجمع الخامس</p>
+            </div>
+        </section>
+
+        <!-- What to Expect Section -->
+        <section id="what-to-expect" class="mb-12 md:mb-16">
+            <h2 class="section-title text-3xl md:text-4xl text-center mb-8">ماذا ينتظركم؟</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12">
+                <div class="card p-5 rounded-lg text-center">
+                    <div class="text-4xl mb-2">🎮</div>
+                    <h3 class="font-header text-xl font-bold text-amber-400">أقوى الألعاب</h3>
+                    <p class="text-zinc-400 text-sm">غرف خاصة للبلايستيشن وعروض افتتاح حصرية.</p>
+                </div>
+                <div class="card p-5 rounded-lg text-center">
+                    <div class="text-4xl mb-2">🎬</div>
+                    <h3 class="font-header text-xl font-bold text-amber-400">سينما خاصة</h3>
+                    <p class="text-zinc-400 text-sm">شاشات ضخمة وصوت محيطي لتجربة مشاهدة فريدة.</p>
+                </div>
+                <div class="card p-5 rounded-lg text-center">
+                    <div class="text-4xl mb-2">🍹</div>
+                    <h3 class="font-header text-xl font-bold text-amber-400">مشروبات ومأكولات</h3>
+                    <p class="text-zinc-400 text-sm">قائمة متنوعة تناسب كل الأذواق والمزاج.</p>
+                </div>
+                <div class="card p-5 rounded-lg text-center">
+                    <div class="text-4xl mb-2">🎁</div>
+                    <h3 class="font-header text-xl font-bold text-amber-400">عجلة الحظ</h3>
+                    <p class="text-zinc-400 text-sm">جرّب حظك واربح جوائز فورية ومفاجآت ممتعة.</p>
+                </div>
+            </div>
+            
+            <!-- Roulette -->
+            <div class="bg-zinc-800/50 rounded-2xl p-6 md:p-8 border border-amber-500/20 max-w-lg mx-auto">
+                <div class="chart-container">
+                    <div class="roulette-pointer"></div>
+                    <canvas id="roulette-wheel"></canvas>
+                </div>
+                <div class="text-center mt-6">
+                    <button id="spin-button" onclick="spinWheel()" class="font-bold py-2 px-8 rounded-lg shadow-lg transform hover:scale-105">
+                        لف العجلة
+                    </button>
+                    <div id="roulette-result" class="font-header text-xl text-amber-300 mt-4 min-h-[2.5rem]"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-12 md:mt-16 pt-6 border-t border-zinc-700">
+            <p class="font-header text-xl text-zinc-400">#BeBOVibe</p>
+            <p class="text-zinc-500 mt-1">حضوركم يشرفنا</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownDate = new Date("July 20, 2025 20:00:00").getTime();
+
+            const countdownFunction = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownFunction);
+                    document.getElementById("countdown").innerHTML = '<p class="col-span-4 text-center text-2xl font-header text-amber-300">الافتتاح الكبير بدأ الآن!</p>';
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = days.toString().padStart(2, '0');
+                document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+                document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+                document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+            }, 1000);
+
+            drawWheel();
+        });
+
+        const prizes = [
+            { text: 'كسبــت بيبسي مجاني', color: '#B91C1C' }, 
+            { text: 'كسبــت خـصم 5%', color: '#B45309' },
+            { text: 'حاول مرة أخرى', color: '#4A5568' }, 
+            { text: 'كسبــت ربع ساعة PS', color: '#047857' },
+            { text: 'كسبــت طبق تسالي', color: '#1d4ed8' }, 
+            { text: 'خســرت ادفع 5 جنيه', color: '#7e22ce' },
+            { text: 'كسبــت حجر معسل', color: '#be185d' }, 
+            { text: 'ادفع لصاحبك ساعة', color: '#065f46' }
+        ];
+        let rotation = 0;
+        let isSpinning = false;
+        const wheel = document.getElementById('roulette-wheel');
+        const spinButton = document.getElementById('spin-button');
+        const resultDiv = document.getElementById('roulette-result');
+        let ctx;
+
+        function drawWheel() {
+            if (!wheel || typeof wheel.getContext !== 'function') return;
+            ctx = wheel.getContext('2d');
+            const segments = prizes.length;
+            const anglePerSegment = (2 * Math.PI) / segments;
+            const size = wheel.getBoundingClientRect().width;
+            
+            if (size < 10) { // FIX: Prevent drawing if canvas is not yet sized
+                return;
+            }
+
+            wheel.width = size;
+            wheel.height = size;
+            const center = size / 2;
+
+            ctx.clearRect(0, 0, size, size);
+            ctx.font = `bold ${size * 0.045}px Changa`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            prizes.forEach((prize, i) => {
+                const angle = i * anglePerSegment;
+                ctx.beginPath();
+                ctx.fillStyle = prize.color;
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, center - 5, angle, angle + anglePerSegment); // Radius is now safe
+                ctx.lineTo(center, center);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = '#FFFFFF';
+                ctx.translate(center + Math.cos(angle + anglePerSegment / 2) * (center * 0.65), center + Math.sin(angle + anglePerSegment / 2) * (center * 0.65));
+                ctx.rotate(angle + anglePerSegment / 2 + Math.PI / 2);
+                
+                const text = prize.text;
+                const words = text.split(' ');
+                if (words.length > 2) {
+                    ctx.fillText(words.slice(0, 2).join(' '), 0, -8);
+                    ctx.fillText(words.slice(2).join(' '), 0, 8);
+                } else {
+                    ctx.fillText(text, 0, 0);
+                }
+
+                ctx.restore();
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinButton.disabled = true;
+            resultDiv.textContent = '...العجلة بتلف';
+
+            const randomSpin = Math.floor(Math.random() * 360) + 360 * 5;
+            rotation += randomSpin;
+            wheel.style.transition = 'transform 5s cubic-bezier(0.25, 1, 0.5, 1)';
+            wheel.style.transform = `rotate(${rotation}deg)`;
+
+            setTimeout(() => {
+                const actualRotation = rotation % 360;
+                const degreesPerSegment = 360 / prizes.length;
+                const winningSegmentIndex = Math.floor((360 - actualRotation + (degreesPerSegment / 2)) % 360 / degreesPerSegment);
+                const prize = prizes[winningSegmentIndex];
+                
+                resultDiv.textContent = `مبروك! ${prize.text}`;
+                isSpinning = false;
+                spinButton.disabled = false;
+            }, 5000);
+        }
+
+        window.spinWheel = spinWheel;
+        window.addEventListener('resize', drawWheel);
+
+    </script>
+</body>
+</html>
